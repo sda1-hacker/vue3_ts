@@ -1532,7 +1532,7 @@ import { useRouter } from 'vue-router';  // useRoute用于接受参数,  useRout
 
 
 
-16. 集中式状态管理工具: Pinia
+16. 1.集中式状态管理工具: Pinia
 
 ```typescript
 什么时候使用集中式状态管理工具(vuex, pinia)?
@@ -2165,7 +2165,306 @@ $parent可以获取到子组件对应父组件的实例, 在父组件中同样�
 
 
 
-9. slot(插槽): 页面具有相同的解构,但是数据不同, 通过同一个组件对不同的数据进行渲染.
-默认插槽, 具名插槽, 作用域插槽
+9. slot(插槽): 页面具有相同的结构,但是数据不同, 通过同一个组件对不同的数据进行渲染.
+
+// 占位符,
+
+(1). 默认插槽: 占位符,  默认插槽的名字为default, 默认不需要写
+父组件: 
+<template>
+    <div class="father">
+        <div class="context">
+            <Category :title="title1">
+                <div>
+                    内容1，这里的数据被添加到Category组件的solt中
+                </div>
+            </Category>
+
+            <Category :title="title2">
+                <div>
+                    内容2，这里的数据被添加到Category组件的solt中
+                </div>
+            </Category>
+
+            <Category :title="title3">
+                <div>
+                    内容3，这里的数据被添加到Category组件的solt中
+                </div>
+            </Category>
+        </div>
+    </div>
+</template>
+
+<script lang = 'ts' setup name = 'SlotFather'>
+    import Category from "@/views/09_slot/Category.vue";
+    import {ref} from 'vue';
+    let title1 = ('标题1')
+    let title2 = ('标题2')
+    let title3 = ('标题3')
+</script>
+
+<style scoped>
+    .father {
+        background-color: rgb(165, 164, 164);
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .context {
+        display: flex;
+        justify-content: space-evenly;
+    }
+</style>
+
+子组件:
+<template>
+    <div>
+        <h2>{{ title }}</h2>
+        <slot></slot>  <!-- 组件中定义的内容会被显示到这里 -->
+    </div>
+</template>
+
+<script setup lang="ts" name ="Category">
+    defineProps<{title: string}>()
+</script>
+ 
+<style scoped>
+    h3{
+        background-color: orange;
+    }
+</style>
+
+
+(2). 具名插槽: 有名字的占位符, 可以根据名字选择不同的占位符
+// v-slot:s1 --> 将内容放到名字为s1的插槽中, 只能作用与 template标签和自定义组件标签上. 所以需要将想放进插槽中的内容放到template中. 在组件中可以定义不同的<slot name="插槽名字"><slot>来显示不同的内容. 使用v-slot:name 有一个语法糖: <template v-slot:s1>  ====>   <template #s1>  等价
+父组件:
+<template>
+    <div class="father">
+        <div class="context">
+            <Category :title="title1">
+                <template v-slot:s2>
+                    <div>
+                        内容1111，这里的数据被添加到Category组件的solt中
+                    </div>
+                </template>
+
+                <template v-slot:s1>
+                    <h2>标题1111</h2>
+                </template>
+            </Category>
+
+            <Category :title="title1">
+                <template v-slot:s2>
+                    <div>
+                        内容2222，这里的数据被添加到Category组件的solt中
+                    </div>
+                </template>
+
+                <template v-slot:s1>
+                    <h2>标题2222</h2>
+                </template>
+            </Category>
+
+            <Category :title="title1">
+                <template #s2>
+                    <div>
+                        内容3333，这里的数据被添加到Category组件的solt中
+                    </div>
+                </template>
+
+                <template #s1>
+                    <h2>标题3333</h2>
+                </template>
+            </Category>
+        </div>
+    </div>
+</template>
+
+<script lang = 'ts' setup name = 'SlotFather'>
+    import Category from "@/views/09_slot/Category.vue";
+    import {ref} from 'vue';
+    let title1 = ('标题1')
+    let title2 = ('标题2')
+    let title3 = ('标题3')
+</script>
+
+<style scoped>
+    .father {
+        background-color: rgb(165, 164, 164);
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .context {
+        display: flex;
+        justify-content: space-evenly;
+    }
+</style>
+
+子组件:
+<template>
+        <slot name="s1">这是默认内容111</slot>  <!-- 组件中定义的内容会被显示到这里 -->
+        <slot name="s2">这是默认内容222</slot>
+</template>
+
+<script setup lang="ts" name ="Category">
+    defineProps<{title: string}>()
+</script>
+ 
+<style scoped>
+    h3{
+        background-color: orange;
+    }
+</style>
+
+
+(3). 作用域插槽:
+// 数据定义在子组件中, 在父组件中渲染数据需要用到子组件中的数据, 通过slot将数据传递给父组件.
+父组件:
+<template>
+    <div class="father">
+        <div class="context">
+            <Category>
+                <!-- 在子组件中通过slot标签传递的所有数据，都被放在了一个名字为params 的对象中了 --> 
+                <template v-slot="params">
+                    <ul>
+                        <li v-for="g in params.youxi" :key="g.id">{{ g.name }}</li>
+                    </ul>
+                </template>
+            </Category>
+
+            <Category>
+                <template v-slot="params">
+                    <ol>
+                        <li v-for="g in params.youxi" :key="g.id">{{ g.name }}</li>
+                    </ol>
+                </template>
+            </Category>
+
+        </div>
+    </div>
+</template>
+
+<script lang = 'ts' setup name = 'SlotFather'>
+    import Category from "@/views/09_slot/Category.vue";
+</script>
+
+<style scoped>
+    .father {
+        background-color: rgb(165, 164, 164);
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .context {
+        display: flex;
+        justify-content: space-evenly;
+    }
+</style>
+
+子组件:
+<template>
+       <slot :youxi="game" x="x变量" y="y变量"></slot>
+</template>
+
+<script setup lang="ts" name ="Category">
+    import { reactive } from "vue";
+    let game = reactive([
+        {
+            id: "001",
+            name: "穿越火线",
+        },
+        {
+            id: "002",
+            name: "地下城与勇士",
+        },
+        {
+            id: "002",
+            name: "梦幻西游",
+        }
+    ])
+</script>
+ 
+<style scoped>
+    h3{
+        background-color: orange;
+    }
+</style>
+
+// 作用域插槽也可以配合具名插槽使用
+// v-slot:插槽名字="参数名字"
+```
+
+
+
+17. 其他的API
+
+```typescript
+1. ref 和 shallowRef: 
+let person = shallowRef({id: '001', name: '张三'})
+let sum = shallowRef(10)
+
+function updateData() {
+  person.value = {id: '002', name: '李四'}  // 第一层, 可以修改成功
+  person.value.name = '王五'  // 第二层, 不能修改成功
+  
+  sum.value = 100	// 第一层, 可以修改成功
+}
+
+# shallowRef只能做第一层数据的修改, .value就是第一层, 因此只能对.vlaue进行修改.
+# 对于一些属性较多的,只需要关注对整体的修改, 效率比较高.
+
+2. reactive 和 shallowReactive: 
+let car = shallowReactive({
+    name: "奔驰",			// 第一层
+    options: {			 // 第一层
+        color: "紫色",	// 第二层
+        engine: "v8"	 // 第二层
+    }
+})
+
+function updateData() {
+    car.name = "宝马",			// 第一层, 可以修改成功
+    car.options.color = "黑色",	// 第二层, 不能修改成功
+    car.options.engine = "v12",	 // 第二层, 不能修改成功
+    car.options = {				 // 第一层, 可以修改成功
+        color: "蓝色",
+        engine: "v18"
+    }
+}
+
+# shallowReactive只能做第一层数据的修改,
+
+3. readonly // 所有层次只读,  shallowReadonlly // 第一层只读,其它层次可以修改
+
+4. toRaw // 将一个相应是对象变成一般对象
+let person = reactive({id: '001', name: '张三'})
+let person2 = toRaw(person)		// 将一个响应式对象变成最原始的对象
+
+5. markRaw // 让对象永远不能变成响应式的
+let car = {name: "奔驰", price: 100}
+let car2 = reactive(car) // 将原始对象变成响应式,
+##
+let car = markRaw({name: "奔驰", price: 100})
+let car2 = reactive(car) // 这里变成响应式是无法生效的
+
+6. 自定义Ref: customRef,  实现一个修改数据3秒后进行变化, 最好封装成一个hook
+let initValue = '你好'
+let timmer: number 
+let msg = customRef((track, trigger) => { 
+    // msg被读取的时候调用
+    get(){
+        track() 	// 持续关注msg, 一旦收到了msg变化的通知,就更新msg   -- 跟踪
+        return initValue
+    },
+    // msg被修改的时候调用
+    set(val){ // 修改时候接收到的值
+        clearTimeout(timer)
+        timer = setTimeout(()=>{
+            initValue = val
+        	trigger()	// 通知vue, 数据msg发生了变化   -- 出发变化
+        }, 3000)
+    },
+})
 ```
 
