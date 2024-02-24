@@ -6,6 +6,10 @@
 b站学习链接：
 https://www.bilibili.com/video/BV1Za4y1r7KE/?spm_id_from=333.337.search-card.all.click&vd_source=540c985cd59918d0d6a094841c177cdf
 
+一个vue3，写的比较好的小项目， 不是用ts而使用js写的。
+https://github.com/XiaoRedAh/Forum/blob/code/project-frontend/src/views/welcome/LoginPage.vue
+
+
 踩坑: 在ts中想要使用this,不能使用箭头函数 () => {}
 
 基本库: 
